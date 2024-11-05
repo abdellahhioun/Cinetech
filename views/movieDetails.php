@@ -116,7 +116,7 @@
                 </div>
             </div>
             
-            <a href="/" class="back-button">Back to Home</a>
+            <a href="index.php?controller=movie&action=showPopularMovies" class="back-button">Back to Movies</a>
         </div>
     </div>
 
