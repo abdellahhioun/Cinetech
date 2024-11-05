@@ -3,16 +3,22 @@ namespace App\Controllers;
 
 use App\Models\Movie;
 use Exception;
+use PDO;
 
 class MovieController {
     private $movieModel;
     private $apiBaseUrl;
     private $apiKey;
+    private $db;
 
     public function __construct() {
         $this->movieModel = new Movie();
         $this->apiBaseUrl = TMDB_API_BASE_URL;
         $this->apiKey = TMDB_API_KEY;
+
+        // Database connection
+        $this->db = new PDO('mysql:host=localhost;dbname=cinetech', 'root', '');
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     public function showPopularMovies() {
@@ -114,5 +120,44 @@ class MovieController {
         }
 
         require __DIR__ . '/../../views/tvshows.php';
+    }
+
+    public function showProfile() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=user&action=showLoginForm');
+            exit;
+        }
+
+        // Fetch user data from the database
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->bindParam(':username', $_SESSION['user']);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        require __DIR__ . '/../../views/profile.php';
+    }
+
+    public function updateProfilePicture() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=user&action=showLoginForm');
+            exit;
+        }
+
+        $profilePicture = $_FILES['profile_picture'] ?? null;
+
+        if ($profilePicture && $profilePicture['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../uploads/';
+            $profilePicturePath = 'uploads/' . basename($profilePicture['name']);
+            move_uploaded_file($profilePicture['tmp_name'], $uploadDir . basename($profilePicture['name']));
+
+            // Update the user's profile picture in the database
+            $stmt = $this->db->prepare("UPDATE users SET profile_picture = :profile_picture WHERE username = :username");
+            $stmt->bindParam(':profile_picture', $profilePicturePath);
+            $stmt->bindParam(':username', $_SESSION['user']);
+            $stmt->execute();
+        }
+
+        header('Location: index.php?controller=user&action=showProfile');
+        exit;
     }
 }

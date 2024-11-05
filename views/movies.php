@@ -5,6 +5,8 @@
     <title>Popular Movies</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS -->
     <style>
         body {
@@ -90,6 +92,16 @@
             <div>
                 <a href="index.php?controller=movie&action=showPopularMovies">Movies</a>
                 <a href="index.php?controller=movie&action=showPopularTVShows">TV Shows</a>
+            </div>
+            <div>
+                <!-- Profile Icon -->
+                <?php if (isset($_SESSION['user'])): ?>
+                    <a href="index.php?controller=user&action=showProfile" class="btn btn-secondary">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                <?php else: ?>
+                    <a href="index.php?controller=user&action=showLoginForm" class="btn btn-secondary">Login</a>
+                <?php endif; ?>
             </div>
             <!-- Search Form -->
             <form action="index.php" method="get" class="search-bar d-flex">
