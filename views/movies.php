@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Popular Movies</title>
-    <!-- Même CSS que tvshows.php -->
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <nav>
