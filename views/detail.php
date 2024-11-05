@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Movie Details</title>
+    <link rel="stylesheet" href="/css/style.css">
+
 </head>
 <body>
     <h1><?= htmlspecialchars($movie['title']) ?></h1>
