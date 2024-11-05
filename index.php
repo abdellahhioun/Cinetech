@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/config/config.php';
 
 use App\Controllers\MovieController;
 
@@ -17,7 +17,8 @@ switch ($controller) {
 
 if (method_exists($controllerInstance, $action)) {
     if (isset($_GET['id'])) {
-        $controllerInstance->$action($_GET['id']);
+        $type = $_GET['type'] ?? 'movie';
+        $controllerInstance->$action($_GET['id'], $type);
     } else {
         $controllerInstance->$action();
     }
