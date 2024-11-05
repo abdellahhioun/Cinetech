@@ -91,6 +91,14 @@
                 <a href="index.php?controller=movie&action=showPopularMovies">Movies</a>
                 <a href="index.php?controller=movie&action=showPopularTVShows">TV Shows</a>
             </div>
+            <div>
+                <!-- Profile Icon -->
+                <?php if (isset($_SESSION['user'])): ?>
+                    <a href="index.php?controller=movie&action=showProfile" class="btn btn-secondary">Profile</a>
+                <?php else: ?>
+                    <a href="index.php?controller=movie&action=showLoginForm" class="btn btn-secondary">Login</a>
+                <?php endif; ?>
+            </div>
             <!-- Search Form -->
             <form action="index.php" method="get" class="search-bar d-flex">
                 <input type="hidden" name="controller" value="movie">
