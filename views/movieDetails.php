@@ -2,6 +2,7 @@
 <html>
 <head>
     <title><?php echo htmlspecialchars($details['title']); ?></title>
+    <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body>
     <div class="movie-details">
