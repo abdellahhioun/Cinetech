@@ -122,81 +122,9 @@ class MovieController {
         require __DIR__ . '/../../views/tvshows.php';
     }
 
-    public function showLoginForm() {
-        require __DIR__ . '/../../views/login.php';
-    }
-
-    public function login() {
-        $username = $_POST['username'] ?? '';
-        $password = $_POST['password'] ?? '';
-
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->bindParam(':username', $username);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user'] = $user['username']; // Store user in session
-            header('Location: index.php?controller=movie&action=showPopularMovies');
-            exit;
-        } else {
-            $error = 'Invalid username or password';
-            require __DIR__ . '/../../views/login.php';
-        }
-    }
-
-    public function showRegistrationForm() {
-        require __DIR__ . '/../../views/register.php';
-    }
-
-    public function register() {
-        $username = $_POST['username'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $profilePicture = $_FILES['profile_picture'] ?? null;
-
-        if (!empty($username) && !empty($email) && !empty($password)) {
-            // Hash the password
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-            // Handle file upload
-            $profilePicturePath = null;
-            if ($profilePicture && $profilePicture['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../../uploads/';
-                $profilePicturePath = 'uploads/' . basename($profilePicture['name']);
-                move_uploaded_file($profilePicture['tmp_name'], $uploadDir . basename($profilePicture['name']));
-            }
-
-            // Insert user into the database
-            $stmt = $this->db->prepare("INSERT INTO users (username, email, password, profile_picture) VALUES (:username, :email, :password, :profile_picture)");
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $hashedPassword);
-            $stmt->bindParam(':profile_picture', $profilePicturePath);
-
-            try {
-                $stmt->execute();
-                header('Location: index.php?controller=movie&action=showLoginForm');
-                exit;
-            } catch (Exception $e) {
-                $error = 'Username or email already exists';
-                require __DIR__ . '/../../views/register.php';
-            }
-        } else {
-            $error = 'Please fill in all fields';
-            require __DIR__ . '/../../views/register.php';
-        }
-    }
-
-    public function logout() {
-        session_destroy(); // Destroy the session
-        header('Location: index.php?controller=movie&action=showPopularMovies');
-        exit;
-    }
-
     public function showProfile() {
         if (!isset($_SESSION['user'])) {
-            header('Location: index.php?controller=movie&action=showLoginForm');
+            header('Location: index.php?controller=user&action=showLoginForm');
             exit;
         }
 
@@ -211,7 +139,7 @@ class MovieController {
 
     public function updateProfilePicture() {
         if (!isset($_SESSION['user'])) {
-            header('Location: index.php?controller=movie&action=showLoginForm');
+            header('Location: index.php?controller=user&action=showLoginForm');
             exit;
         }
 
@@ -229,7 +157,7 @@ class MovieController {
             $stmt->execute();
         }
 
-        header('Location: index.php?controller=movie&action=showProfile');
+        header('Location: index.php?controller=user&action=showProfile');
         exit;
     }
 }
