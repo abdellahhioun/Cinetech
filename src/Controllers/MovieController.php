@@ -16,28 +16,47 @@ class MovieController {
     }
 
     public function showPopularMovies() {
-        $movies = $this->movieModel->getPopularMovies();
-        require __DIR__ . '/../../views/home.php';
+        $movies = $this->movieModel->getPopularMovies(2);
+        require __DIR__ . '/../../views/movies.php';
     }
 
-    public function details($id) {
+    public function showPopularTVShows() {
+        $tvShows = $this->movieModel->getPopularTVShows(2);
+        require __DIR__ . '/../../views/tvshows.php';
+    }
+
+    public function details($id, $type = 'movie') {
         try {
-            $url = $this->apiBaseUrl . '/movie/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits';
+            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits';
             
             $response = @file_get_contents($url);
             if ($response === false) {
-                throw new Exception('Failed to fetch movie details');
+                throw new Exception('Failed to fetch details');
             }
 
-            $movieDetails = json_decode($response, true);
-            if (!$movieDetails || isset($movieDetails['success']) && $movieDetails['success'] === false) {
-                throw new Exception('Invalid movie data received');
+            $details = json_decode($response, true);
+            if (!$details || isset($details['success']) && $details['success'] === false) {
+                throw new Exception('Invalid data received');
             }
 
-            require __DIR__ . '/../../views/moviesDetails.php';
+            $viewFile = ($type === 'movie' ? 'movieDetails.php' : 'tvshowDetails.php');
+            $viewPath = __DIR__ . '/../../views/' . $viewFile;
+            
+            if (!file_exists($viewPath)) {
+                throw new Exception("View file not found: {$viewFile}");
+            }
+
+            require $viewPath;
         } catch (Exception $e) {
             $error = $e->getMessage();
-            require __DIR__ . '/../../views/error.php';
+            $errorPath = __DIR__ . '/../../views/error.php';
+            
+            if (!file_exists($errorPath)) {
+                // Fallback if error view is missing
+                die('Error: ' . htmlspecialchars($error));
+            }
+            
+            require $errorPath;
         }
     }
-} 
+}
