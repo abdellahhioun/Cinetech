@@ -86,9 +86,18 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="container">
-            <a href="index.php?controller=movie&action=showPopularMovies">Movies</a>
-            <a href="index.php?controller=movie&action=showPopularTVShows">TV Shows</a>
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <a href="index.php?controller=movie&action=showPopularMovies">Movies</a>
+                <a href="index.php?controller=movie&action=showPopularTVShows">TV Shows</a>
+            </div>
+            <!-- Search Form -->
+            <form action="index.php" method="get" class="search-bar d-flex">
+                <input type="hidden" name="controller" value="movie">
+                <input type="hidden" name="action" value="search">
+                <input type="text" name="query" class="form-control" placeholder="Search for a movie..." required>
+                <button type="submit" class="btn btn-danger ms-2">Search</button>
+            </form>
         </div>
     </nav>
     
