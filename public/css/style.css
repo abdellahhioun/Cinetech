@@ -1,0 +1,123 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navigation */
+nav {
+    background-color: #333;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+}
+
+nav a:hover {
+    background-color: #555;
+    border-radius: 3px;
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Cards */
+.content-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.content-card h2 {
+    margin-bottom: 0.5rem;
+}
+
+.content-card p {
+    margin-bottom: 1rem;
+}
+
+.content-card a {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.content-card a:hover {
+    background: #0056b3;
+}
+
+/* Details Pages */
+.movie-details, .tvshow-details {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.movie-details img, .tvshow-details img {
+    max-width: 300px;
+    height: auto;
+    margin: 1rem 0;
+}
+
+/* Error Page */
+.error-container {
+    max-width: 500px;
+    margin: 3rem auto;
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Utility Classes */
+.overview {
+    margin: 1rem 0;
+}
+
+.info {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.cast {
+    margin: 1rem 0;
+}
+
+.cast ul {
+    list-style: none;
+}
+
+.cast li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+} 
