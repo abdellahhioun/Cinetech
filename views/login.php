@@ -11,7 +11,7 @@
         <?php if (isset($error)): ?>
             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
-        <form action="index.php?controller=movie&action=login" method="post">
+        <form action="index.php?controller=user&action=login" method="post">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" class="form-control" required>
@@ -22,7 +22,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <p class="mt-3">Don't have an account? <a href="index.php?controller=movie&action=showRegistrationForm">Register here</a></p>
+        <p class="mt-3">Don't have an account? <a href="index.php?controller=user&action=showRegistrationForm">Register here</a></p>
     </div>
 </body>
 </html> 
