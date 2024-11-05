@@ -59,4 +59,60 @@ class MovieController {
             require $errorPath;
         }
     }
+
+    public function search() {
+        $query = $_GET['query'] ?? '';
+
+        if (!empty($query)) {
+            try {
+                // Fetch search results from TMDB API
+                $url = $this->apiBaseUrl . '/search/movie?api_key=' . $this->apiKey . '&query=' . urlencode($query);
+                $response = @file_get_contents($url);
+
+                if ($response === false) {
+                    throw new Exception('Failed to fetch search results');
+                }
+
+                $searchResults = json_decode($response, true);
+
+                if (!$searchResults || isset($searchResults['success']) && $searchResults['success'] === false) {
+                    throw new Exception('Invalid data received');
+                }
+
+                // Pass search results to the view
+                require __DIR__ . '/../../views/searchResults.php';
+            } catch (Exception $e) {
+                $error = $e->getMessage();
+                $errorPath = __DIR__ . '/../../views/error.php';
+                if (!file_exists($errorPath)) {
+                    die('Error: ' . htmlspecialchars($error));
+                }
+                require $errorPath;
+            }
+        } else {
+            header('Location: index.php?controller=movie&action=showPopularMovies');
+            exit;
+        }
+    }
+
+    public function searchTVShows() {
+        $query = $_GET['query'] ?? '';
+        if ($query === '') {
+            throw new Exception('Query parameter is missing');
+        }
+
+        $url = $this->apiBaseUrl . '/search/tv?api_key=' . $this->apiKey . '&query=' . urlencode($query);
+        
+        $response = @file_get_contents($url);
+        if ($response === false) {
+            throw new Exception('Failed to fetch search results');
+        }
+
+        $tvShows = json_decode($response, true);
+        if (!$tvShows || isset($tvShows['success']) && $tvShows['success'] === false) {
+            throw new Exception('Invalid data received');
+        }
+
+        require __DIR__ . '/../../views/tvshows.php';
+    }
 }
