@@ -17,7 +17,8 @@ switch ($controller) {
 
 if (method_exists($controllerInstance, $action)) {
     if (isset($_GET['id'])) {
-        $controllerInstance->$action($_GET['id']);
+        $type = $_GET['type'] ?? 'movie';
+        $controllerInstance->$action($_GET['id'], $type);
     } else {
         $controllerInstance->$action();
     }
