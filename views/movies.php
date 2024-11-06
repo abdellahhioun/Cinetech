@@ -12,6 +12,9 @@
         body {
             background-color: #141414;
             color: #ffffff;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
         .navbar {
@@ -130,22 +133,30 @@
 
         /* Carousel Styles */
         #movieCarousel {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
             margin-bottom: 2rem;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .carousel-content {
             position: relative;
-            height: 500px;
+            height: 70vh;
+            min-height: 600px;
+            max-height: 800px;
         }
 
         .carousel-backdrop {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.7);
+            object-position: center 20%;
+            filter: brightness(0.6);
         }
 
         .carousel-overlay {
@@ -153,8 +164,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0.95));
-            padding: 100px 50px 50px;
+            background: linear-gradient(90deg, 
+                rgba(0, 0, 0, 0.85) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                transparent 100%);
+            padding: 60px 10% 60px;
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
 
         .carousel-caption {
@@ -164,19 +181,19 @@
             left: auto;
             text-align: left;
             padding: 0;
+            max-width: 60%;
         }
 
         .carousel-caption h2 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             font-weight: bold;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .movie-overview {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -186,17 +203,17 @@
         .carousel-details {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .carousel-details .rating {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: #ffd700;
         }
 
         .carousel-details .btn {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             background-color: #e50914;
@@ -211,11 +228,12 @@
 
         .carousel-indicators {
             bottom: 20px;
+            margin-bottom: 0;
         }
 
         .carousel-indicators button {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             margin: 0 5px;
             background-color: rgba(255, 255, 255, 0.5);
@@ -265,60 +283,58 @@
         </div>
     </nav>
     
-    <div class="container mb-5">
-        <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
-            <!-- Indicators -->
-            <div class="carousel-indicators">
-                <?php 
-                $firstFiveMovies = array_slice($movies['results'], 0, 5);
-                foreach($firstFiveMovies as $index => $movie): ?>
-                    <button type="button" 
-                            data-bs-target="#movieCarousel" 
-                            data-bs-slide-to="<?= $index ?>" 
-                            class="<?= $index === 0 ? 'active' : '' ?>"
-                            aria-current="<?= $index === 0 ? 'true' : 'false' ?>"
-                            aria-label="Slide <?= $index + 1 ?>">
-                    </button>
-                <?php endforeach; ?>
-            </div>
+    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <?php 
+            $firstFiveMovies = array_slice($movies['results'], 0, 5);
+            foreach($firstFiveMovies as $index => $movie): ?>
+                <button type="button" 
+                        data-bs-target="#movieCarousel" 
+                        data-bs-slide-to="<?= $index ?>" 
+                        class="<?= $index === 0 ? 'active' : '' ?>"
+                        aria-current="<?= $index === 0 ? 'true' : 'false' ?>"
+                        aria-label="Slide <?= $index + 1 ?>">
+                </button>
+            <?php endforeach; ?>
+        </div>
 
-            <!-- Carousel items -->
-            <div class="carousel-inner">
-                <?php foreach($firstFiveMovies as $index => $movie): ?>
-                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="3000">
-                        <div class="carousel-content">
-                            <img src="https://image.tmdb.org/t/p/original<?= $movie['backdrop_path'] ?>" 
-                                 class="carousel-backdrop" 
-                                 alt="<?= htmlspecialchars($movie['title']) ?>">
-                            <div class="carousel-overlay">
-                                <div class="carousel-caption">
-                                    <h2><?= htmlspecialchars($movie['title']) ?></h2>
-                                    <p class="movie-overview"><?= htmlspecialchars($movie['overview']) ?></p>
-                                    <div class="carousel-details">
-                                        <span class="rating">
-                                            <i class="fas fa-star"></i> 
-                                            <?= number_format($movie['vote_average'], 1) ?>
-                                        </span>
-                                        <a href="index.php?controller=movie&action=details&id=<?= $movie['id'] ?>&type=movie" 
-                                           class="btn btn-primary">Watch Now</a>
-                                    </div>
+        <!-- Carousel items -->
+        <div class="carousel-inner">
+            <?php foreach($firstFiveMovies as $index => $movie): ?>
+                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="3000">
+                    <div class="carousel-content">
+                        <img src="https://image.tmdb.org/t/p/original<?= $movie['backdrop_path'] ?>" 
+                             class="carousel-backdrop" 
+                             alt="<?= htmlspecialchars($movie['title']) ?>">
+                        <div class="carousel-overlay">
+                            <div class="carousel-caption">
+                                <h2><?= htmlspecialchars($movie['title']) ?></h2>
+                                <p class="movie-overview"><?= htmlspecialchars($movie['overview']) ?></p>
+                                <div class="carousel-details">
+                                    <span class="rating">
+                                        <i class="fas fa-star"></i> 
+                                        <?= number_format($movie['vote_average'], 1) ?>
+                                    </span>
+                                    <a href="index.php?controller=movie&action=details&id=<?= $movie['id'] ?>&type=movie" 
+                                       class="btn btn-primary">Watch Now</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
-
-            <!-- Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+                </div>
+            <?php endforeach; ?>
         </div>
+
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
     
     <div class="container">
