@@ -32,8 +32,44 @@ class MovieController {
     }
 
     public function details($id, $type = 'movie') {
+
         try {
-            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits';
+            if ($type === 'person') {
+                // Fetch person/actor details with movie credits and TV credits
+                $url = $this->apiBaseUrl . '/person/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=movie_credits,tv_credits';
+                
+                $response = @file_get_contents($url);
+                if ($response === false) {
+                    throw new Exception('Failed to fetch actor details');
+                }
+
+                $details = json_decode($response, true);
+                if (!$details || isset($details['success']) && $details['success'] === false) {
+                    throw new Exception('Invalid data received');
+                }
+
+                // Sort movies by popularity (descending)
+                if (isset($details['movie_credits']['cast'])) {
+                    usort($details['movie_credits']['cast'], function($a, $b) {
+                        return ($b['popularity'] ?? 0) <=> ($a['popularity'] ?? 0);
+                    });
+                }
+
+                // Sort TV shows by popularity (descending)
+                if (isset($details['tv_credits']['cast'])) {
+                    usort($details['tv_credits']['cast'], function($a, $b) {
+                        return ($b['popularity'] ?? 0) <=> ($a['popularity'] ?? 0);
+                    });
+                }
+
+                require __DIR__ . '/../../views/actorDetails.php';
+                return;
+            }
+
+            // Update the API call to include credits and videos
+            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey 
+                 . '&append_to_response=credits,videos,similar,recommendations'
+                 . '&include_video=true';
             
             $response = @file_get_contents($url);
             if ($response === false) {
@@ -43,6 +79,23 @@ class MovieController {
             $details = json_decode($response, true);
             if (!$details || isset($details['success']) && $details['success'] === false) {
                 throw new Exception('Invalid data received');
+            }
+
+            // Sort cast by order/popularity if needed
+            if (!empty($details['credits']['cast'])) {
+                usort($details['credits']['cast'], function($a, $b) {
+                    return ($a['order'] ?? PHP_INT_MAX) - ($b['order'] ?? PHP_INT_MAX);
+                });
+            }
+
+            // Get the first trailer if available
+            if (!empty($details['videos']['results'])) {
+                $trailers = array_filter($details['videos']['results'], function($video) {
+                    return $video['type'] === 'Trailer' && $video['site'] === 'YouTube';
+                });
+                if (!empty($trailers)) {
+                    $details['videos']['results'] = array_values($trailers);
+                }
             }
 
             $viewFile = ($type === 'movie' ? 'movieDetails.php' : 'tvshowDetails.php');
@@ -58,7 +111,6 @@ class MovieController {
             $errorPath = __DIR__ . '/../../views/error.php';
             
             if (!file_exists($errorPath)) {
-                // Fallback if error view is missing
                 die('Error: ' . htmlspecialchars($error));
             }
             
@@ -159,5 +211,113 @@ class MovieController {
 
         header('Location: index.php?controller=user&action=showProfile');
         exit;
+    }
+
+    public function toggleFavorite() {
+        if (!isset($_SESSION['user'])) {
+            echo json_encode(['success' => false, 'message' => 'Please login to add favorites']);
+            exit;
+        }
+
+        try {
+            $contentId = $_POST['content_id'] ?? null;
+            $contentType = $_POST['content_type'] ?? null;
+            $title = $_POST['title'] ?? null;
+            $posterPath = $_POST['poster_path'] ?? null;
+
+            if (!$contentId || !$contentType || !$title) {
+                throw new Exception('Missing required parameters');
+            }
+
+            // Get user ID
+            $stmt = $this->db->prepare("SELECT id FROM users WHERE username = :username");
+            $stmt->execute([':username' => $_SESSION['user']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                throw new Exception('User not found');
+            }
+
+            // Check if already favorited
+            $stmt = $this->db->prepare("
+                SELECT id FROM favorites 
+                WHERE user_id = :user_id 
+                AND content_id = :content_id 
+                AND content_type = :content_type
+            ");
+            $stmt->execute([
+                ':user_id' => $user['id'],
+                ':content_id' => $contentId,
+                ':content_type' => $contentType
+            ]);
+
+            if ($stmt->fetch()) {
+                // Remove from favorites
+                $stmt = $this->db->prepare("
+                    DELETE FROM favorites 
+                    WHERE user_id = :user_id 
+                    AND content_id = :content_id 
+                    AND content_type = :content_type
+                ");
+                $stmt->execute([
+                    ':user_id' => $user['id'],
+                    ':content_id' => $contentId,
+                    ':content_type' => $contentType
+                ]);
+                echo json_encode(['success' => true, 'action' => 'removed']);
+            } else {
+                // Add to favorites
+                $stmt = $this->db->prepare("
+                    INSERT INTO favorites (user_id, content_id, content_type, title, poster_path) 
+                    VALUES (:user_id, :content_id, :content_type, :title, :poster_path)
+                ");
+                $stmt->execute([
+                    ':user_id' => $user['id'],
+                    ':content_id' => $contentId,
+                    ':content_type' => $contentType,
+                    ':title' => $title,
+                    ':poster_path' => $posterPath
+                ]);
+                echo json_encode(['success' => true, 'action' => 'added']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function getFavoriteStatus($contentId, $contentType) {
+        if (!isset($_SESSION['user'])) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT f.id 
+            FROM favorites f 
+            JOIN users u ON f.user_id = u.id 
+            WHERE u.username = :username 
+            AND f.content_id = :content_id 
+            AND f.content_type = :content_type
+        ");
+        
+        $stmt->execute([
+            ':username' => $_SESSION['user'],
+            ':content_id' => $contentId,
+            ':content_type' => $contentType
+        ]);
+
+        return $stmt->fetch() !== false;
+    }
+
+    public function getFavorites($username) {
+        $stmt = $this->db->prepare("
+            SELECT f.* 
+            FROM favorites f
+            INNER JOIN users u ON f.user_id = u.id
+            WHERE u.username = :username
+            ORDER BY f.created_at DESC
+        ");
+        $stmt->execute([':username' => $username]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
