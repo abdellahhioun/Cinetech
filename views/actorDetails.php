@@ -14,10 +14,36 @@
         body {
             background-color: var(--dark-bg);
             color: #ffffff;
+            position: relative;
+        }
+
+        .background-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 500px;
+            background-size: cover;
+            background-position: center 20%;
+            filter: blur(30px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .background-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to bottom, transparent, var(--dark-bg));
         }
 
         .actor-profile {
             padding: 4rem 0;
+            position: relative;
+            z-index: 1;
         }
 
         .actor-image {
@@ -74,6 +100,12 @@
     </style>
 </head>
 <body>
+    <?php if (!empty($details['profile_path'])): ?>
+        <div class="background-banner" 
+             style="background-image: url('https://image.tmdb.org/t/p/original<?php echo htmlspecialchars($details['profile_path']); ?>')">
+        </div>
+    <?php endif; ?>
+
     <div class="container">
         <div class="actor-profile">
             <div class="row">
