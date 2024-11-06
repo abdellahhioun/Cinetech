@@ -235,11 +235,7 @@
             object-position: center 20%;
             transform: scale(1);
             transition: transform 6s ease-in-out;
-        }
-
-        /* Add zoom effect when slide is active */
-        .carousel-item.active .carousel-backdrop {
-            transform: scale(1.1);
+            will-change: transform;
         }
 
         .carousel-overlay {
@@ -247,8 +243,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0.95));
-            padding: 100px 50px 50px;
+            background: linear-gradient(90deg, 
+                rgba(0, 0, 0, 0.85) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                transparent 100%);
+            padding: 60px 10% 60px;
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
 
         .carousel-caption {
@@ -258,19 +260,23 @@
             left: auto;
             text-align: left;
             padding: 0;
+            max-width: 60%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: transform, opacity;
         }
 
         .carousel-caption h2 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             font-weight: bold;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .show-overview {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin-bottom: 1.5rem;
+        .movie-overview {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -280,17 +286,17 @@
         .carousel-details {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .carousel-details .rating {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: #ffd700;
         }
 
         .carousel-details .btn {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             background-color: #e50914;
@@ -305,11 +311,12 @@
 
         .carousel-indicators {
             bottom: 20px;
+            margin-bottom: 0;
         }
 
         .carousel-indicators button {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             margin: 0 5px;
             background-color: rgba(255, 255, 255, 0.5);
@@ -329,6 +336,15 @@
         #tvShowCarousel:hover .carousel-control-prev,
         #tvShowCarousel:hover .carousel-control-next {
             opacity: 1;
+        }
+
+        .carousel-item.active .carousel-backdrop {
+            transform: scale(1.1);
+        }
+
+        .carousel-item.active .carousel-caption {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -476,35 +492,62 @@
     </script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get the carousel element
         const carousel = document.getElementById('tvShowCarousel');
         
-        // Handle slide change events
-        carousel.addEventListener('slide.bs.carousel', function (e) {
-            // Reset the zoom on the next slide
-            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1}) .carousel-backdrop`);
-            if (nextSlide) {
-                nextSlide.style.transform = 'scale(1)';
+        function animateSlide(slide) {
+            const backdrop = slide.querySelector('.carousel-backdrop');
+            const caption = slide.querySelector('.carousel-caption');
+            
+            if (backdrop && caption) {
+                // Reset initial states
+                backdrop.style.transition = 'none';
+                backdrop.style.transform = 'scale(1)';
+                caption.style.transition = 'none';
+                caption.style.opacity = '0';
+                caption.style.transform = 'translateY(20px)';
+                
+                // Force reflow
+                backdrop.offsetHeight;
+                caption.offsetHeight;
+                
+                // Start animations
+                requestAnimationFrame(() => {
+                    // Restore transitions
+                    backdrop.style.transition = 'transform 6s ease-in-out';
+                    caption.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                    
+                    // Apply animations
+                    backdrop.style.transform = 'scale(1.1)';
+                    caption.style.opacity = '1';
+                    caption.style.transform = 'translateY(0)';
+                });
             }
-        });
-
-        carousel.addEventListener('slid.bs.carousel', function (e) {
-            // Start zoom effect after slide transition
-            const currentSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-            if (currentSlide) {
-                // Force a reflow
-                currentSlide.offsetHeight;
-                currentSlide.style.transform = 'scale(1.1)';
-            }
-        });
-
-        // Start the zoom effect for the first slide
-        const firstSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-        if (firstSlide) {
-            setTimeout(() => {
-                firstSlide.style.transform = 'scale(1.1)';
-            }, 100);
         }
+
+        // Initialize first slide immediately after DOM load
+        const activeSlide = document.querySelector('.carousel-item.active');
+        if (activeSlide) {
+            animateSlide(activeSlide);
+        }
+
+        // Handle slide changes
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1})`);
+            if (nextSlide) {
+                const caption = nextSlide.querySelector('.carousel-caption');
+                if (caption) {
+                    caption.style.opacity = '0';
+                    caption.style.transform = 'translateY(20px)';
+                }
+            }
+        });
+
+        carousel.addEventListener('slid.bs.carousel', function () {
+            const activeSlide = document.querySelector('.carousel-item.active');
+            if (activeSlide) {
+                animateSlide(activeSlide);
+            }
+        });
     });
     </script>
 </body>
