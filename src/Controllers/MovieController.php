@@ -32,8 +32,42 @@ class MovieController {
     }
 
     public function details($id, $type = 'movie') {
+
         try {
-            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits';
+            if ($type === 'person') {
+                // Fetch person/actor details with movie credits and TV credits
+                $url = $this->apiBaseUrl . '/person/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=movie_credits,tv_credits';
+                
+                $response = @file_get_contents($url);
+                if ($response === false) {
+                    throw new Exception('Failed to fetch actor details');
+                }
+
+                $details = json_decode($response, true);
+                if (!$details || isset($details['success']) && $details['success'] === false) {
+                    throw new Exception('Invalid data received');
+                }
+
+                // Sort movies by popularity (descending)
+                if (isset($details['movie_credits']['cast'])) {
+                    usort($details['movie_credits']['cast'], function($a, $b) {
+                        return ($b['popularity'] ?? 0) <=> ($a['popularity'] ?? 0);
+                    });
+                }
+
+                // Sort TV shows by popularity (descending)
+                if (isset($details['tv_credits']['cast'])) {
+                    usort($details['tv_credits']['cast'], function($a, $b) {
+                        return ($b['popularity'] ?? 0) <=> ($a['popularity'] ?? 0);
+                    });
+                }
+
+                require __DIR__ . '/../../views/actorDetails.php';
+                return;
+            }
+
+            // Fetch movie details with credits, videos, and similar movies
+            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits,videos,similar';
             
             $response = @file_get_contents($url);
             if ($response === false) {
@@ -58,7 +92,6 @@ class MovieController {
             $errorPath = __DIR__ . '/../../views/error.php';
             
             if (!file_exists($errorPath)) {
-                // Fallback if error view is missing
                 die('Error: ' . htmlspecialchars($error));
             }
             
