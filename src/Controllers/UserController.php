@@ -80,7 +80,23 @@ class UserController {
     }
 
     public function logout() {
-        session_destroy(); // Destroy the session
+        // Start the session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Unset all session variables
+        $_SESSION = array();
+        
+        // Destroy the session cookie
+        if (isset($_COOKIE[session_name()])) {
+            setcookie(session_name(), '', time() - 3600, '/');
+        }
+        
+        // Destroy the session
+        session_destroy();
+        
+        // Redirect to home page or login page
         header('Location: index.php?controller=movie&action=showPopularMovies');
         exit;
     }
@@ -101,7 +117,10 @@ class UserController {
             die("User not found");
         }
 
-        require __DIR__ . '/../../views/profile.php'; // Load the profile view
+        // Store profile picture in session
+        $_SESSION['profile_picture'] = $user['profile_picture'];
+
+        require __DIR__ . '/../../views/profile.php';
     }
 
     public function updateProfilePicture() {
@@ -110,21 +129,54 @@ class UserController {
             exit;
         }
 
-        $profilePicture = $_FILES['profile_picture'] ?? null;
-
-        if ($profilePicture && $profilePicture['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../uploads/';
-            $profilePicturePath = 'uploads/' . basename($profilePicture['name']);
-            move_uploaded_file($profilePicture['tmp_name'], $uploadDir . basename($profilePicture['name']));
-
-            // Update the user's profile picture in the database
-            $stmt = $this->db->prepare("UPDATE users SET profile_picture = :profile_picture WHERE username = :username");
-            $stmt->bindParam(':profile_picture', $profilePicturePath);
-            $stmt->bindParam(':username', $_SESSION['user']);
-            $stmt->execute();
+        if (!isset($_FILES['profile_picture']) || $_FILES['profile_picture']['error'] !== UPLOAD_ERR_OK) {
+            header('Location: index.php?controller=user&action=showProfile&error=upload');
+            exit;
         }
 
-        header('Location: index.php?controller=user&action=showProfile'); // Redirect back to the profile page
+        $file = $_FILES['profile_picture'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        
+        // Validate file type
+        if (!in_array($file['type'], $allowedTypes)) {
+            header('Location: index.php?controller=user&action=showProfile&error=type');
+            exit;
+        }
+
+        // Create uploads directory if it doesn't exist
+        $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Generate unique filename
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('profile_') . '.' . $extension;
+        $uploadPath = $uploadDir . $filename;
+        $dbPath = 'uploads/profiles/' . $filename;
+
+        // Delete old profile picture if exists
+        $stmt = $this->db->prepare("SELECT profile_picture FROM users WHERE username = :username");
+        $stmt->execute([':username' => $_SESSION['user']]);
+        $oldPicture = $stmt->fetchColumn();
+
+        if ($oldPicture && file_exists(__DIR__ . '/../../public/' . $oldPicture)) {
+            unlink(__DIR__ . '/../../public/' . $oldPicture);
+        }
+
+        // Upload new picture
+        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            $stmt = $this->db->prepare("UPDATE users SET profile_picture = :picture WHERE username = :username");
+            $stmt->execute([
+                ':picture' => $dbPath,
+                ':username' => $_SESSION['user']
+            ]);
+            
+            $_SESSION['profile_picture'] = $dbPath;
+            header('Location: index.php?controller=user&action=showProfile&success=true');
+        } else {
+            header('Location: index.php?controller=user&action=showProfile&error=save');
+        }
         exit;
     }
 }
