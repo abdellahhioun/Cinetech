@@ -66,8 +66,10 @@ class MovieController {
                 return;
             }
 
-            // Fetch movie details with credits, videos, and similar movies
-            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey . '&append_to_response=credits,videos,similar';
+            // Update the API call to include credits and videos
+            $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey 
+                 . '&append_to_response=credits,videos,similar,recommendations'
+                 . '&include_video=true';
             
             $response = @file_get_contents($url);
             if ($response === false) {
@@ -77,6 +79,23 @@ class MovieController {
             $details = json_decode($response, true);
             if (!$details || isset($details['success']) && $details['success'] === false) {
                 throw new Exception('Invalid data received');
+            }
+
+            // Sort cast by order/popularity if needed
+            if (!empty($details['credits']['cast'])) {
+                usort($details['credits']['cast'], function($a, $b) {
+                    return ($a['order'] ?? PHP_INT_MAX) - ($b['order'] ?? PHP_INT_MAX);
+                });
+            }
+
+            // Get the first trailer if available
+            if (!empty($details['videos']['results'])) {
+                $trailers = array_filter($details['videos']['results'], function($video) {
+                    return $video['type'] === 'Trailer' && $video['site'] === 'YouTube';
+                });
+                if (!empty($trailers)) {
+                    $details['videos']['results'] = array_values($trailers);
+                }
             }
 
             $viewFile = ($type === 'movie' ? 'movieDetails.php' : 'tvshowDetails.php');
