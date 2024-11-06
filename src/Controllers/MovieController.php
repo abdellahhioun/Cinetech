@@ -212,4 +212,112 @@ class MovieController {
         header('Location: index.php?controller=user&action=showProfile');
         exit;
     }
+
+    public function toggleFavorite() {
+        if (!isset($_SESSION['user'])) {
+            echo json_encode(['success' => false, 'message' => 'Please login to add favorites']);
+            exit;
+        }
+
+        try {
+            $contentId = $_POST['content_id'] ?? null;
+            $contentType = $_POST['content_type'] ?? null;
+            $title = $_POST['title'] ?? null;
+            $posterPath = $_POST['poster_path'] ?? null;
+
+            if (!$contentId || !$contentType || !$title) {
+                throw new Exception('Missing required parameters');
+            }
+
+            // Get user ID
+            $stmt = $this->db->prepare("SELECT id FROM users WHERE username = :username");
+            $stmt->execute([':username' => $_SESSION['user']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                throw new Exception('User not found');
+            }
+
+            // Check if already favorited
+            $stmt = $this->db->prepare("
+                SELECT id FROM favorites 
+                WHERE user_id = :user_id 
+                AND content_id = :content_id 
+                AND content_type = :content_type
+            ");
+            $stmt->execute([
+                ':user_id' => $user['id'],
+                ':content_id' => $contentId,
+                ':content_type' => $contentType
+            ]);
+
+            if ($stmt->fetch()) {
+                // Remove from favorites
+                $stmt = $this->db->prepare("
+                    DELETE FROM favorites 
+                    WHERE user_id = :user_id 
+                    AND content_id = :content_id 
+                    AND content_type = :content_type
+                ");
+                $stmt->execute([
+                    ':user_id' => $user['id'],
+                    ':content_id' => $contentId,
+                    ':content_type' => $contentType
+                ]);
+                echo json_encode(['success' => true, 'action' => 'removed']);
+            } else {
+                // Add to favorites
+                $stmt = $this->db->prepare("
+                    INSERT INTO favorites (user_id, content_id, content_type, title, poster_path) 
+                    VALUES (:user_id, :content_id, :content_type, :title, :poster_path)
+                ");
+                $stmt->execute([
+                    ':user_id' => $user['id'],
+                    ':content_id' => $contentId,
+                    ':content_type' => $contentType,
+                    ':title' => $title,
+                    ':poster_path' => $posterPath
+                ]);
+                echo json_encode(['success' => true, 'action' => 'added']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function getFavoriteStatus($contentId, $contentType) {
+        if (!isset($_SESSION['user'])) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT f.id 
+            FROM favorites f 
+            JOIN users u ON f.user_id = u.id 
+            WHERE u.username = :username 
+            AND f.content_id = :content_id 
+            AND f.content_type = :content_type
+        ");
+        
+        $stmt->execute([
+            ':username' => $_SESSION['user'],
+            ':content_id' => $contentId,
+            ':content_type' => $contentType
+        ]);
+
+        return $stmt->fetch() !== false;
+    }
+
+    public function getFavorites($username) {
+        $stmt = $this->db->prepare("
+            SELECT f.* 
+            FROM favorites f
+            INNER JOIN users u ON f.user_id = u.id
+            WHERE u.username = :username
+            ORDER BY f.created_at DESC
+        ");
+        $stmt->execute([':username' => $username]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
