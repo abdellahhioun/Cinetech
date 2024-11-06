@@ -187,62 +187,133 @@
         }
 
         .similar-movies {
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.5);
             padding: 4rem 0;
-            margin-top: 2rem;
+            margin-top: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .similar-movies::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(to right, 
+                var(--dark-bg) 0%, 
+                transparent 10%, 
+                transparent 90%, 
+                var(--dark-bg) 100%
+            );
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .similar-movies h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .similar-movies-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2.5rem;
             padding: 0 2rem;
+            position: relative;
         }
 
         .similar-movie-card {
-            background-color: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
+            position: relative;
+            border-radius: 15px;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 2/3;
         }
 
         .similar-movie-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .similar-movie-poster {
             width: 100%;
-            aspect-ratio: 2/3;
+            height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
         }
 
         .similar-movie-card:hover .similar-movie-poster {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .similar-movie-info {
-            padding: 1.2rem;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 1.2rem 1.2rem;
+            background: linear-gradient(to top, 
+                rgba(0,0,0,0.9) 0%,
+                rgba(0,0,0,0.7) 60%,
+                transparent 100%
+            );
+            transform: translateY(100%);
+            transition: transform 0.5s ease;
+        }
+
+        .similar-movie-card:hover .similar-movie-info {
+            transform: translateY(0);
         }
 
         .similar-movie-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin-bottom: 0.8rem;
             color: #ffffff;
             font-weight: 500;
         }
 
         .similar-movie-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             color: var(--secondary-color);
             font-size: 1rem;
             font-weight: bold;
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .similar-movie-rating::before {
+            content: '★';
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .similar-movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .similar-movie-info {
+                transform: translateY(0);
+                padding: 1rem;
+            }
+
+            .similar-movie-title {
+                font-size: 1rem;
+            }
         }
 
         .placeholder-image {
@@ -337,26 +408,28 @@
 
         <?php if (!empty($details['similar']['results'])): ?>
         <div class="similar-movies">
-            <h2 class="mb-4">Similar TV Shows You Might Like</h2>
-            <div class="similar-movies-grid">
-                <?php foreach (array_slice($details['similar']['results'], 0, 6) as $similar): ?>
-                    <a href="index.php?controller=movie&action=details&id=<?= $similar['id'] ?>&type=tv" 
-                       class="similar-movie-card text-decoration-none">
-                        <?php if (!empty($similar['poster_path'])): ?>
-                            <img src="https://image.tmdb.org/t/p/w500<?php echo htmlspecialchars($similar['poster_path']); ?>" 
-                                 alt="<?php echo htmlspecialchars($similar['name']); ?>"
-                                 class="similar-movie-poster">
-                        <?php endif; ?>
-                        <div class="similar-movie-info">
-                            <h3 class="similar-movie-title"><?php echo htmlspecialchars($similar['name']); ?></h3>
-                            <?php if (!empty($similar['vote_average'])): ?>
-                                <span class="similar-movie-rating">
-                                    <?php echo number_format($similar['vote_average'], 1); ?>/10
-                                </span>
+            <div class="container">
+                <h2>Similar TV Shows</h2>
+                <div class="similar-movies-grid">
+                    <?php foreach (array_slice($details['similar']['results'], 0, 6) as $similar): ?>
+                        <a href="index.php?controller=movie&action=details&id=<?= $similar['id'] ?>&type=tv" 
+                           class="similar-movie-card">
+                            <?php if (!empty($similar['poster_path'])): ?>
+                                <img src="https://image.tmdb.org/t/p/w500<?php echo htmlspecialchars($similar['poster_path']); ?>" 
+                                     alt="<?php echo htmlspecialchars($similar['name']); ?>"
+                                     class="similar-movie-poster">
                             <?php endif; ?>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+                            <div class="similar-movie-info">
+                                <h3 class="similar-movie-title"><?php echo htmlspecialchars($similar['name']); ?></h3>
+                                <?php if (!empty($similar['vote_average'])): ?>
+                                    <span class="similar-movie-rating">
+                                        <?php echo number_format($similar['vote_average'], 1); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
         <?php endif; ?>
