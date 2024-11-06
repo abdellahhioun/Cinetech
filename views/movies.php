@@ -37,53 +37,76 @@
 
         .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            padding: 40px;
+            max-width: 1800px;
+            margin: 0 auto;
         }
 
         .content-card {
-            background-color: #181818;
+            position: relative;
             border-radius: 8px;
-            padding: 1.5rem;
-            transition: transform 0.2s;
-            text-decoration: none;
-            color: inherit;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+            transition: transform 0.3s ease;
         }
 
         .content-card:hover {
             transform: translateY(-5px);
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .content-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .content-card:hover img {
-            transform: scale(1.05);
-        }
-
-        .content-card h2 {
-            font-size: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .content-card p {
-            color: #b3b3b3;
-            font-size: 0.9rem;
-            line-height: 1.4;
         }
 
         .movie-poster {
             position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            width: 100%;
+            height: 100%;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .content-card:hover .movie-poster img {
+            transform: scale(1.1);
+        }
+
+        /* Overlay that appears on hover */
+        .movie-info {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to top,
+                rgba(0, 0, 0, 0.9) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .content-card:hover .movie-info {
+            opacity: 1;
+        }
+
+        .content-card h2 {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover h2 {
+            transform: translateY(0);
         }
 
         .rating-badge {
@@ -91,11 +114,23 @@
             top: 10px;
             left: 10px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 20px;
             color: #ffd700;
-            font-weight: bold;
-            z-index: 1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .content-card:hover .rating-badge {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .favorite-btn {
@@ -104,31 +139,47 @@
             right: 10px;
             background: rgba(0, 0, 0, 0.7);
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            border-radius: 6px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
             z-index: 2;
-            padding: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
         }
 
         .favorite-btn i {
-            color: white;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
+            color: #fff;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
 
-        .favorite-btn.active {
-            background: rgba(229, 9, 20, 0.9);
+        .content-card:hover .favorite-btn {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .favorite-btn:hover {
-            transform: scale(1.1);
-            background: rgba(229, 9, 20, 0.9);
+            background: #e50914;
+        }
+
+        .favorite-btn.active {
+            opacity: 1;
+            background: #e50914;
+        }
+
+        .movie-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* Carousel Styles */
@@ -270,6 +321,21 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Add a movie info overlay on hover */
+        .movie-info-overlay {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 2rem 1rem 1rem;
+            transition: bottom 0.3s ease;
+        }
+
+        .content-card:hover .movie-info-overlay {
+            bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -361,24 +427,27 @@
                     <div class="movie-poster">
                         <?php if (!empty($movie['poster_path'])): ?>
                             <img src="https://image.tmdb.org/t/p/w500<?php echo htmlspecialchars($movie['poster_path']); ?>" 
-                                 alt="<?php echo htmlspecialchars($movie['title']); ?>" 
-                                 class="img-fluid">
-                            <?php if (!empty($movie['vote_average'])): ?>
-                                <span class="rating-badge">
-                                    <i class="fas fa-star" style="color: #ffd700;"></i>
-                                    <?= number_format($movie['vote_average'], 1) ?>
-                                </span>
-                            <?php endif; ?>
-                            <?php if (isset($_SESSION['user'])): ?>
-                                <button class="favorite-btn <?php echo $this->getFavoriteStatus($movie['id'], 'movie') ? 'active' : ''; ?>"
-                                        onclick="toggleFavorite(event, this, <?php echo $movie['id']; ?>, 'movie', '<?php echo addslashes($movie['title']); ?>', '<?php echo $movie['poster_path']; ?>')">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            <?php endif; ?>
+                                 alt="<?php echo htmlspecialchars($movie['title']); ?>">
                         <?php endif; ?>
                     </div>
-                    <h2><?= htmlspecialchars($movie['title']) ?></h2>
-                    <p><?= htmlspecialchars($movie['overview']) ?></p>
+                    
+                    <div class="movie-info">
+                        <h2><?= htmlspecialchars($movie['title']) ?></h2>
+                    </div>
+
+                    <?php if (!empty($movie['vote_average'])): ?>
+                        <span class="rating-badge">
+                            <i class="fas fa-star"></i>
+                            <?= number_format($movie['vote_average'], 1) ?>
+                        </span>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['user'])): ?>
+                        <button class="favorite-btn <?php echo $this->getFavoriteStatus($movie['id'], 'movie') ? 'active' : ''; ?>"
+                                onclick="toggleFavorite(event, this, <?php echo $movie['id']; ?>, 'movie', '<?php echo addslashes($movie['title']); ?>', '<?php echo $movie['poster_path']; ?>')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    <?php endif; ?>
                 </a>
             <?php endforeach; ?>
         </div>
