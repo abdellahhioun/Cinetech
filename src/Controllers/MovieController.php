@@ -22,12 +22,22 @@ class MovieController {
     }
 
     public function showPopularMovies() {
-        $movies = $this->movieModel->getPopularMovies(2);
+        $movies = $this->movieModel->getPopularMovies();
+        // Randomize and get first 5 movies for carousel
+        $results = $movies['results'];
+        shuffle($results);
+        $movies['results'] = $results;
+        
         require __DIR__ . '/../../views/movies.php';
     }
 
     public function showPopularTVShows() {
         $tvShows = $this->movieModel->getPopularTVShows(2);
+        // Randomize the results for carousel
+        $results = $tvShows['results'];
+        shuffle($results);
+        $tvShows['results'] = $results;
+        
         require __DIR__ . '/../../views/tvshows.php';
     }
 
