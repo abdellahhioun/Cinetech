@@ -149,6 +149,7 @@
             height: 70vh;
             min-height: 600px;
             max-height: 800px;
+            overflow: hidden;
         }
 
         .carousel-backdrop {
@@ -156,7 +157,8 @@
             height: 100%;
             object-fit: cover;
             object-position: center 20%;
-            filter: brightness(0.6);
+            transform: scale(1);
+            transition: transform 6s ease-in-out;
         }
 
         .carousel-overlay {
@@ -182,6 +184,9 @@
             text-align: left;
             padding: 0;
             max-width: 60%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease-out;
         }
 
         .carousel-caption h2 {
@@ -254,6 +259,15 @@
         #movieCarousel:hover .carousel-control-next {
             opacity: 1;
         }
+
+        .carousel-item.active .carousel-backdrop {
+            transform: scale(1.1);
+        }
+
+        .carousel-item.active .carousel-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -283,7 +297,7 @@
         </div>
     </nav>
     
-    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
         <!-- Indicators -->
         <div class="carousel-indicators">
             <?php 
@@ -392,6 +406,39 @@
         })
         .catch(error => console.error('Error:', error));
     }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the carousel element
+        const carousel = document.getElementById('movieCarousel');
+        
+        // Handle slide change events
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            // Reset the zoom on the next slide
+            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1}) .carousel-backdrop`);
+            if (nextSlide) {
+                nextSlide.style.transform = 'scale(1)';
+            }
+        });
+
+        carousel.addEventListener('slid.bs.carousel', function (e) {
+            // Start zoom effect after slide transition
+            const currentSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
+            if (currentSlide) {
+                // Force a reflow
+                currentSlide.offsetHeight;
+                currentSlide.style.transform = 'scale(1.1)';
+            }
+        });
+
+        // Start the zoom effect for the first slide
+        const firstSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
+        if (firstSlide) {
+            setTimeout(() => {
+                firstSlide.style.transform = 'scale(1.1)';
+            }, 100);
+        }
+    });
     </script>
 </body>
 </html> 
