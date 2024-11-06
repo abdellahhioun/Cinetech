@@ -316,7 +316,7 @@
         <!-- Carousel items -->
         <div class="carousel-inner">
             <?php foreach($firstFiveMovies as $index => $movie): ?>
-                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="3000">
+                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="6000">
                     <div class="carousel-content">
                         <img src="https://image.tmdb.org/t/p/original<?= $movie['backdrop_path'] ?>" 
                              class="carousel-backdrop" 
