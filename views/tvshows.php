@@ -209,22 +209,37 @@
 
         /* Add these to your <style> section */
         #tvShowCarousel {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
             margin-bottom: 2rem;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .carousel-content {
             position: relative;
-            height: 500px;
+            height: 70vh;
+            min-height: 600px;
+            max-height: 800px;
+            overflow: hidden;
         }
 
         .carousel-backdrop {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.7);
+            object-position: center 20%;
+            transform: scale(1);
+            transition: transform 6s ease-in-out;
+        }
+
+        /* Add zoom effect when slide is active */
+        .carousel-item.active .carousel-backdrop {
+            transform: scale(1.1);
         }
 
         .carousel-overlay {
@@ -347,7 +362,7 @@
 
     <!-- Carousel immediately after navbar -->
     <div class="container mb-5">
-        <div id="tvShowCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div id="tvShowCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
             <!-- Indicators -->
             <div class="carousel-indicators">
                 <?php 
@@ -366,7 +381,7 @@
             <!-- Carousel items -->
             <div class="carousel-inner">
                 <?php foreach($firstFiveShows as $index => $show): ?>
-                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="3000">
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>" data-bs-interval="6000">
                         <div class="carousel-content">
                             <img src="https://image.tmdb.org/t/p/original<?= $show['backdrop_path'] ?>" 
                                  class="carousel-backdrop" 
@@ -374,7 +389,7 @@
                             <div class="carousel-overlay">
                                 <div class="carousel-caption">
                                     <h2><?= htmlspecialchars($show['name']) ?></h2>
-                                    <p class="show-overview"><?= htmlspecialchars($show['overview']) ?></p>
+                                    <p class="movie-overview"><?= htmlspecialchars($show['overview']) ?></p>
                                     <div class="carousel-details">
                                         <span class="rating">
                                             <i class="fas fa-star"></i> 
@@ -458,6 +473,39 @@
         })
         .catch(error => console.error('Error:', error));
     }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the carousel element
+        const carousel = document.getElementById('tvShowCarousel');
+        
+        // Handle slide change events
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            // Reset the zoom on the next slide
+            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1}) .carousel-backdrop`);
+            if (nextSlide) {
+                nextSlide.style.transform = 'scale(1)';
+            }
+        });
+
+        carousel.addEventListener('slid.bs.carousel', function (e) {
+            // Start zoom effect after slide transition
+            const currentSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
+            if (currentSlide) {
+                // Force a reflow
+                currentSlide.offsetHeight;
+                currentSlide.style.transform = 'scale(1.1)';
+            }
+        });
+
+        // Start the zoom effect for the first slide
+        const firstSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
+        if (firstSlide) {
+            setTimeout(() => {
+                firstSlide.style.transform = 'scale(1.1)';
+            }, 100);
+        }
+    });
     </script>
 </body>
 </html>
