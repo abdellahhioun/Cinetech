@@ -159,6 +159,7 @@
             object-position: center 20%;
             transform: scale(1);
             transition: transform 6s ease-in-out;
+            will-change: transform;
         }
 
         .carousel-overlay {
@@ -186,7 +187,8 @@
             max-width: 60%;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 1s ease-out;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: transform, opacity;
         }
 
         .carousel-caption h2 {
@@ -409,35 +411,62 @@
     </script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get the carousel element
         const carousel = document.getElementById('movieCarousel');
         
-        // Handle slide change events
-        carousel.addEventListener('slide.bs.carousel', function (e) {
-            // Reset the zoom on the next slide
-            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1}) .carousel-backdrop`);
-            if (nextSlide) {
-                nextSlide.style.transform = 'scale(1)';
+        function animateSlide(slide) {
+            const backdrop = slide.querySelector('.carousel-backdrop');
+            const caption = slide.querySelector('.carousel-caption');
+            
+            if (backdrop && caption) {
+                // Reset initial states
+                backdrop.style.transition = 'none';
+                backdrop.style.transform = 'scale(1)';
+                caption.style.transition = 'none';
+                caption.style.opacity = '0';
+                caption.style.transform = 'translateY(20px)';
+                
+                // Force reflow
+                backdrop.offsetHeight;
+                caption.offsetHeight;
+                
+                // Start animations
+                requestAnimationFrame(() => {
+                    // Restore transitions
+                    backdrop.style.transition = 'transform 6s ease-in-out';
+                    caption.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                    
+                    // Apply animations
+                    backdrop.style.transform = 'scale(1.1)';
+                    caption.style.opacity = '1';
+                    caption.style.transform = 'translateY(0)';
+                });
             }
-        });
-
-        carousel.addEventListener('slid.bs.carousel', function (e) {
-            // Start zoom effect after slide transition
-            const currentSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-            if (currentSlide) {
-                // Force a reflow
-                currentSlide.offsetHeight;
-                currentSlide.style.transform = 'scale(1.1)';
-            }
-        });
-
-        // Start the zoom effect for the first slide
-        const firstSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-        if (firstSlide) {
-            setTimeout(() => {
-                firstSlide.style.transform = 'scale(1.1)';
-            }, 100);
         }
+
+        // Initialize first slide immediately after DOM load
+        const activeSlide = document.querySelector('.carousel-item.active');
+        if (activeSlide) {
+            animateSlide(activeSlide);
+        }
+
+        // Handle slide changes
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1})`);
+            if (nextSlide) {
+                const caption = nextSlide.querySelector('.carousel-caption');
+                if (caption) {
+                    caption.style.opacity = '0';
+                    caption.style.transform = 'translateY(20px)';
+                }
+            }
+        });
+
+        carousel.addEventListener('slid.bs.carousel', function () {
+            const activeSlide = document.querySelector('.carousel-item.active');
+            if (activeSlide) {
+                animateSlide(activeSlide);
+            }
+        });
     });
     </script>
 </body>
