@@ -8,8 +8,8 @@
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../src/styles.css">
-    <link rel="stylesheet" href="../src/movies.css"> <!-- Link to the new CSS file -->
+    <link rel="stylesheet" href="../src/assets/styles.css">
+    <link rel="stylesheet" href="../src/assets/movies.css"> <!-- Link to the new CSS file -->
 </head>
 <body>
     <?php include 'partials/navbar.php'; ?>
