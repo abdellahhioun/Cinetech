@@ -330,4 +330,67 @@ class MovieController {
         $stmt->execute([':username' => $username]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function showTopRatedMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/top_rated?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch top rated movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/topRated.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
+    }
+
+    public function showUpcomingMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/upcoming?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch upcoming movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/upcoming.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
+    }
+
+    public function showNowPlayingMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/now_playing?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch now playing movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/nowPlaying.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
+    }
 }
