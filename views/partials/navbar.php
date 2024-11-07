@@ -1,14 +1,13 @@
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-left">
-            <a href="/" class="nav-logo">MovieDB</a>
-            <div class="menu">
-                <a href="#" class="menu-option">Menu</a>
-                <div class="dropdown">
+            <a href="#" class="nav-logo">Cenitech</a>
+            
+            
                     <a href="index.php?controller=movie&action=showPopularMovies" class="dropdown-item">Movies</a>
                     <a href="index.php?controller=movie&action=showPopularTVShows" class="dropdown-item">TV Shows</a>
-                </div>
-            </div>
+        
+            
         </div>
         
         <div class="nav-center">
@@ -26,6 +25,9 @@
 
         <div class="nav-right">
             <?php if (isset($_SESSION['user'])): ?>
+                <button class="favorite-btn" onclick="window.location.href='index.php?controller=movie&action=showFavorites'">
+                    <i class="fas fa-heart"></i> Favorites
+                </button>
                 <button class="profile-btn" onclick="window.location.href='index.php?controller=user&action=showProfile'">
                     <i class="fas fa-user-circle"></i> Profile
                 </button>
