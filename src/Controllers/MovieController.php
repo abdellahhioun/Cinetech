@@ -22,12 +22,22 @@ class MovieController {
     }
 
     public function showPopularMovies() {
-        $movies = $this->movieModel->getPopularMovies(2);
+        $movies = $this->movieModel->getPopularMovies();
+        // Randomize and get first 5 movies for carousel
+        $results = $movies['results'];
+        shuffle($results);
+        $movies['results'] = $results;
+        
         require __DIR__ . '/../../views/movies.php';
     }
 
     public function showPopularTVShows() {
         $tvShows = $this->movieModel->getPopularTVShows(2);
+        // Randomize the results for carousel
+        $results = $tvShows['results'];
+        shuffle($results);
+        $tvShows['results'] = $results;
+        
         require __DIR__ . '/../../views/tvshows.php';
     }
 
@@ -66,7 +76,7 @@ class MovieController {
                 return;
             }
 
-            // Update the API call to include credits and videos
+            // Update the API call to include credits, videos, and genres
             $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey 
                  . '&append_to_response=credits,videos,similar,recommendations'
                  . '&include_video=true';
@@ -119,20 +129,25 @@ class MovieController {
     }
 
     public function search() {
-        $query = $_GET['query'] ?? '';
+        // Get the search query from the URL
+        $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
+        // Check if the query is not empty
         if (!empty($query)) {
             try {
                 // Fetch search results from TMDB API
                 $url = $this->apiBaseUrl . '/search/movie?api_key=' . $this->apiKey . '&query=' . urlencode($query);
                 $response = @file_get_contents($url);
 
+                // Check if the response is valid
                 if ($response === false) {
                     throw new Exception('Failed to fetch search results');
                 }
 
+                // Decode the JSON response
                 $searchResults = json_decode($response, true);
 
+                // Check if the search results are valid
                 if (!$searchResults || isset($searchResults['success']) && $searchResults['success'] === false) {
                     throw new Exception('Invalid data received');
                 }
@@ -140,14 +155,12 @@ class MovieController {
                 // Pass search results to the view
                 require __DIR__ . '/../../views/searchResults.php';
             } catch (Exception $e) {
+                // Handle any exceptions and show an error page
                 $error = $e->getMessage();
-                $errorPath = __DIR__ . '/../../views/error.php';
-                if (!file_exists($errorPath)) {
-                    die('Error: ' . htmlspecialchars($error));
-                }
-                require $errorPath;
+                require __DIR__ . '/../../views/error.php';
             }
         } else {
+            // If the query is empty, redirect to popular movies
             header('Location: index.php?controller=movie&action=showPopularMovies');
             exit;
         }
@@ -319,5 +332,68 @@ class MovieController {
         ");
         $stmt->execute([':username' => $username]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function showTopRatedMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/top_rated?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch top rated movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/topRated.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
+    }
+
+    public function showUpcomingMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/upcoming?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch upcoming movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/upcoming.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
+    }
+
+    public function showNowPlayingMovies() {
+        try {
+            $url = $this->apiBaseUrl . '/movie/now_playing?api_key=' . $this->apiKey;
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                throw new Exception('Failed to fetch now playing movies');
+            }
+
+            $movies = json_decode($response, true);
+            if (!$movies || isset($movies['success']) && $movies['success'] === false) {
+                throw new Exception('Invalid data received');
+            }
+
+            require __DIR__ . '/../../views/nowPlaying.php';
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            require __DIR__ . '/../../views/error.php';
+        }
     }
 }

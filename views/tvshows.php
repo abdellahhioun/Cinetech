@@ -8,357 +8,12 @@
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS -->
-    <style>
-        body {
-            background-color: #141414;
-            color: #ffffff;
-        }
-
-        .navbar {
-            background-color: #181818;
-            padding: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Remove duplicate styles and keep only the movies.php version */
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
-            padding: 1rem;
-        }
-
-        .content-card {
-            background-color: #181818;
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: transform 0.2s;
-            text-decoration: none;
-            color: inherit;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content-card:hover {
-            transform: translateY(-5px);
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .content-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .content-card:hover img {
-            transform: scale(1.05);
-        }
-
-        .content-card h2 {
-            font-size: 1.2rem;
-            margin: 1rem 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .content-card p {
-            color: #b3b3b3;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            margin-bottom: 0;
-            flex-grow: 1;
-        }
-
-        .show-poster {
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            aspect-ratio: 2/3;
-            width: 100%;
-        }
-
-        .show-poster img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .rating-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 20px;
-            color: #ffd700;
-            font-weight: bold;
-            z-index: 1;
-        }
-
-        .favorite-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 2;
-            padding: 0;
-        }
-
-        .favorite-btn i {
-            color: white;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .favorite-btn.active {
-            background: rgba(229, 9, 20, 0.9);
-        }
-
-        .favorite-btn:hover {
-            transform: scale(1.1);
-            background: rgba(229, 9, 20, 0.9);
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-right: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-        }
-
-        .navbar a:hover {
-            background-color: #232323;
-        }
-
-        .search-bar {
-            display: flex;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        /* Add these to your <style> section */
-        #tvShow {
-            margin-top: 2rem;
-        }
-
-        #tvShow .carousel-item {
-            height: 300px;
-        }
-
-        #tvShow .carousel-item img {
-            object-fit: cover;
-            height: 100%;
-        }
-
-        #tvShow .carousel-caption {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            padding: 1rem;
-        }
-
-        #tvShow .carousel-caption h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        #tvShow .carousel-caption p {
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        #tvShow .carousel-caption .rating {
-            font-size: 1rem;
-            color: #ffd700;
-            margin-right: 1rem;
-        }
-
-        #tvShow .carousel-caption .btn {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-        }
-
-        /* Add these to your <style> section */
-        #tvShowCarousel {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-            margin-right: -50vw;
-            margin-bottom: 2rem;
-        }
-
-        .carousel-content {
-            position: relative;
-            height: 70vh;
-            min-height: 600px;
-            max-height: 800px;
-            overflow: hidden;
-        }
-
-        .carousel-backdrop {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 20%;
-            transform: scale(1);
-            transition: transform 6s ease-in-out;
-        }
-
-        /* Add zoom effect when slide is active */
-        .carousel-item.active .carousel-backdrop {
-            transform: scale(1.1);
-        }
-
-        .carousel-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0.95));
-            padding: 100px 50px 50px;
-        }
-
-        .carousel-caption {
-            position: relative;
-            right: auto;
-            bottom: auto;
-            left: auto;
-            text-align: left;
-            padding: 0;
-        }
-
-        .carousel-caption h2 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .show-overview {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin-bottom: 1.5rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .carousel-details {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .carousel-details .rating {
-            font-size: 1.2rem;
-            color: #ffd700;
-        }
-
-        .carousel-details .btn {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background-color: #e50914;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .carousel-details .btn:hover {
-            background-color: #ff0f1f;
-            transform: translateY(-2px);
-        }
-
-        .carousel-indicators {
-            bottom: 20px;
-        }
-
-        .carousel-indicators button {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin: 0 5px;
-            background-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .carousel-indicators button.active {
-            background-color: #fff;
-        }
-
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 5%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #tvShowCarousel:hover .carousel-control-prev,
-        #tvShowCarousel:hover .carousel-control-next {
-            opacity: 1;
-        }
-    </style>
+    <link rel="stylesheet" href="../src/styles.css">
+    <link rel="stylesheet" href="../src/tvshows.css">
 </head>
 <body>
     <!-- Navbar first -->
-    <nav class="navbar">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div>
-                <a href="index.php?controller=movie&action=showPopularMovies">Movies</a>
-                <a href="index.php?controller=movie&action=showPopularTVShows">TV Shows</a>
-            </div>
-            <div>
-                <!-- Profile Icon -->
-                <?php if (isset($_SESSION['user'])): ?>
-                    <a href="index.php?controller=user&action=showProfile" class="btn btn-secondary">
-                        <i class="fas fa-user-circle"></i> Profile
-                    </a>
-                <?php else: ?>
-                    <a href="index.php?controller=user&action=showLoginForm" class="btn btn-secondary">Login</a>
-                <?php endif; ?>
-            </div>
-            <!-- Search Form -->
-            <form action="index.php" method="get" class="search-bar d-flex">
-                <input type="hidden" name="controller" value="movie">
-                <input type="hidden" name="action" value="search">
-                <input type="text" name="query" class="form-control" placeholder="Search for a movie..." required>
-                <button type="submit" class="btn btn-danger ms-2">Search</button>
-            </form>
-        </div>
-    </nav>
+    <?php include 'partials/navbar.php'; ?>
 
     <!-- Carousel immediately after navbar -->
     <div class="container mb-5">
@@ -476,36 +131,64 @@
     </script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get the carousel element
         const carousel = document.getElementById('tvShowCarousel');
         
-        // Handle slide change events
-        carousel.addEventListener('slide.bs.carousel', function (e) {
-            // Reset the zoom on the next slide
-            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1}) .carousel-backdrop`);
-            if (nextSlide) {
-                nextSlide.style.transform = 'scale(1)';
+        function animateSlide(slide) {
+            const backdrop = slide.querySelector('.carousel-backdrop');
+            const caption = slide.querySelector('.carousel-caption');
+            
+            if (backdrop && caption) {
+                // Reset initial states
+                backdrop.style.transition = 'none';
+                backdrop.style.transform = 'scale(1)';
+                caption.style.transition = 'none';
+                caption.style.opacity = '0';
+                caption.style.transform = 'translateY(20px)';
+                
+                // Force reflow
+                backdrop.offsetHeight;
+                caption.offsetHeight;
+                
+                // Start animations
+                requestAnimationFrame(() => {
+                    // Restore transitions
+                    backdrop.style.transition = 'transform 6s ease-in-out';
+                    caption.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                    
+                    // Apply animations
+                    backdrop.style.transform = 'scale(1.1)';
+                    caption.style.opacity = '1';
+                    caption.style.transform = 'translateY(0)';
+                });
             }
-        });
-
-        carousel.addEventListener('slid.bs.carousel', function (e) {
-            // Start zoom effect after slide transition
-            const currentSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-            if (currentSlide) {
-                // Force a reflow
-                currentSlide.offsetHeight;
-                currentSlide.style.transform = 'scale(1.1)';
-            }
-        });
-
-        // Start the zoom effect for the first slide
-        const firstSlide = document.querySelector('.carousel-item.active .carousel-backdrop');
-        if (firstSlide) {
-            setTimeout(() => {
-                firstSlide.style.transform = 'scale(1.1)';
-            }, 100);
         }
+
+        // Initialize first slide immediately after DOM load
+        const activeSlide = document.querySelector('.carousel-item.active');
+        if (activeSlide) {
+            animateSlide(activeSlide);
+        }
+
+        // Handle slide changes
+        carousel.addEventListener('slide.bs.carousel', function (e) {
+            const nextSlide = document.querySelector(`.carousel-item:nth-child(${e.to + 1})`);
+            if (nextSlide) {
+                const caption = nextSlide.querySelector('.carousel-caption');
+                if (caption) {
+                    caption.style.opacity = '0';
+                    caption.style.transform = 'translateY(20px)';
+                }
+            }
+        });
+
+        carousel.addEventListener('slid.bs.carousel', function () {
+            const activeSlide = document.querySelector('.carousel-item.active');
+            if (activeSlide) {
+                animateSlide(activeSlide);
+            }
+        });
     });
     </script>
+    <?php include 'partials/footer.php'; ?>
 </body>
 </html>
