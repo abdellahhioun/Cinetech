@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <title>Search Results</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../src/styles.css">
-    <link rel="stylesheet" href="../src/movies.css">
+    <link rel="stylesheet" href="../src/assets/styles.css">
+    <link rel="stylesheet" href="../src/assets/movies.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <?php include 'partials/navbar.php'; ?>
+    <?php
+    use App\Partials\Navbar;
+    use App\Partials\Footer;
+    $navbar = new Navbar();
+    echo $navbar->render();
+    ?>
     
     <div class="container">
         <h1 class="display-4 mb-4">Search Results</h1>
@@ -74,6 +79,9 @@
         }
     </script>
 
-    <?php include 'partials/footer.php'; ?>
+    <?php
+    $footer = new Footer();
+    echo $footer->render();
+    ?>
 </body>
 </html>

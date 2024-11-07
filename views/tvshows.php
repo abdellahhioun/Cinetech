@@ -8,12 +8,19 @@
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../src/styles.css">
-    <link rel="stylesheet" href="../src/tvshows.css">
+    <link rel="stylesheet" href="../src/assets/styles.css">
+    <link rel="stylesheet" href="../src/assets/movies.css">
+    <link rel="stylesheet" href="../src/assets/tvshows.css">
 </head>
 <body>
-    <!-- Navbar first -->
-    <?php include 'partials/navbar.php'; ?>
+<?php
+    use App\Partials\Navbar;
+    use App\Partials\Footer;
+
+    // Create an instance of the Navbar class and render it
+    $navbar = new Navbar();
+    echo $navbar->render();
+    ?>    
 
     <!-- Carousel immediately after navbar -->
     <div class="container mb-5">
@@ -189,6 +196,9 @@
         });
     });
     </script>
-    <?php include 'partials/footer.php'; ?>
-</body>
+ <?php
+    $footer = new Footer();
+    echo $footer->render();
+    ?>
+    </body>
 </html>
