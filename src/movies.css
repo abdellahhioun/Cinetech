@@ -9,54 +9,126 @@ body {
 
 /* Navbar Styles */
 .navbar {
-    background-color: #121212;
-    padding: 0.7rem 1rem;
+    background: linear-gradient(90deg, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0.8));
+    padding: 1rem 2rem;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease;
+}
+
+.navbar:hover {
+    background: linear-gradient(90deg, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0.9));
 }
 
 .nav-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1800px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    width: 100%;
 }
 
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .nav-logo {
+    color: #ffffff;
+    text-decoration: none;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #e50914;
-    text-decoration: none;
-    padding: 0.5rem 0;
 }
 
-.nav-links {
+.nav-center {
+    flex-grow: 1;
     display: flex;
-    align-items: center;
-    gap: 1.2rem;
+    justify-content: center;
 }
 
-.nav-link {
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.95rem;
-    padding: 0.5rem 0;
-    transition: color 0.2s ease;
+.menu {
     position: relative;
 }
 
-.nav-link:hover {
-    color: #e50914;
+.menu-option {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(18, 18, 18, 0.9);
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.menu:hover .dropdown {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    transition: background 0.3s;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-btn {
+    padding: 0.5rem 1rem;
+    background: #e50914;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+    background: #ff0f1f;
+}
+
+.search-bar {
+    position: relative;
+}
+
+.search-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    width: 300px;
+}
+
+.search-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffffff;
 }
 
 .nav-right {
@@ -65,69 +137,16 @@ body {
     gap: 1rem;
 }
 
-.search-bar {
-    position: relative;
-    width: 300px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    padding-right: 2.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    outline: none;
-}
-
-.search-icon {
-    position: absolute;
-    right: 0.8rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
-}
-
 .auth-btn {
+    color: #ffffff;
+    text-decoration: none;
     padding: 0.5rem 1rem;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid #ffffff;
     border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.3s, color 0.3s;
 }
 
 .auth-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.profile-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.profile-btn:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
@@ -271,4 +290,16 @@ body {
     transform: translateY(0);
 }
 
-/* Additional styles can be added here */ 
+
+.movie-genres {
+    margin-top: 1rem;
+    color: #cccccc;
+}
+
+.genre {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 0.3rem 0.6rem;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+}
