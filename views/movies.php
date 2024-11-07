@@ -12,7 +12,14 @@
     <link rel="stylesheet" href="../src/assets/movies.css"> <!-- Link to the new CSS file -->
 </head>
 <body>
-    <?php include 'partials/navbar.php'; ?>
+    <?php
+    use App\Partials\Navbar;
+    use App\Partials\Footer;
+
+    // Create an instance of the Navbar class and render it
+    $navbar = new Navbar();
+    echo $navbar->render();
+    ?>
     
     <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
         <!-- Indicators -->
@@ -98,6 +105,12 @@
             <?php endforeach; ?>
         </div>
     </div>
+    
+    <!-- Create an instance of the Footer class and render it -->
+    <?php
+    $footer = new Footer();
+    echo $footer->render();
+    ?>
     
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -185,6 +198,5 @@
     });
     </script>
 
-<?php include 'partials/footer.php'; ?>
 </body>
 </html> 
