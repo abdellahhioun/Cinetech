@@ -76,7 +76,7 @@ class MovieController {
                 return;
             }
 
-            // Update the API call to include credits and videos
+            // Update the API call to include credits, videos, and genres
             $url = $this->apiBaseUrl . '/' . $type . '/' . $id . '?api_key=' . $this->apiKey 
                  . '&append_to_response=credits,videos,similar,recommendations'
                  . '&include_video=true';
@@ -129,20 +129,25 @@ class MovieController {
     }
 
     public function search() {
-        $query = $_GET['query'] ?? '';
+        // Get the search query from the URL
+        $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
+        // Check if the query is not empty
         if (!empty($query)) {
             try {
                 // Fetch search results from TMDB API
                 $url = $this->apiBaseUrl . '/search/movie?api_key=' . $this->apiKey . '&query=' . urlencode($query);
                 $response = @file_get_contents($url);
 
+                // Check if the response is valid
                 if ($response === false) {
                     throw new Exception('Failed to fetch search results');
                 }
 
+                // Decode the JSON response
                 $searchResults = json_decode($response, true);
 
+                // Check if the search results are valid
                 if (!$searchResults || isset($searchResults['success']) && $searchResults['success'] === false) {
                     throw new Exception('Invalid data received');
                 }
@@ -150,14 +155,12 @@ class MovieController {
                 // Pass search results to the view
                 require __DIR__ . '/../../views/searchResults.php';
             } catch (Exception $e) {
+                // Handle any exceptions and show an error page
                 $error = $e->getMessage();
-                $errorPath = __DIR__ . '/../../views/error.php';
-                if (!file_exists($errorPath)) {
-                    die('Error: ' . htmlspecialchars($error));
-                }
-                require $errorPath;
+                require __DIR__ . '/../../views/error.php';
             }
         } else {
+            // If the query is empty, redirect to popular movies
             header('Location: index.php?controller=movie&action=showPopularMovies');
             exit;
         }
