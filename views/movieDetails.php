@@ -335,6 +335,16 @@
                     <span class="rating"><?php echo htmlspecialchars($details['vote_average']); ?>/10</span>
                 </div>
                 
+                <div class="movie-genres">
+                    <?php if (!empty($details['genres'])): ?>
+                        <span>Genres: 
+                        <?php foreach ($details['genres'] as $genre): ?>
+                            <span class="genre"><?php echo htmlspecialchars($genre['name']); ?></span>
+                        <?php endforeach; ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                
                 <div class="overview">
                     <?php echo htmlspecialchars($details['overview']); ?>
                 </div>
