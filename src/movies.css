@@ -303,3 +303,42 @@ body {
     margin-right: 0.5rem;
     font-size: 0.9rem;
 }
+
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 6px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.favorite-btn i {
+    color: #fff;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.content-card:hover .favorite-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.favorite-btn:hover {
+    background: #e50914;
+}
+
+.favorite-btn.active {
+    opacity: 1;
+    background: #e50914;
+}
