@@ -72,6 +72,23 @@ class MovieController {
                     });
                 }
 
+                // Fetch reviews for the movie
+                $reviews = $this->movieModel->getReviews($id);
+
+                // Filter to get reviews from 3 unique users
+                $uniqueReviews = [];
+                foreach ($reviews as $review) {
+                    if (!isset($uniqueReviews[$review['author']]) && count($uniqueReviews) < 3) {
+                        $uniqueReviews[$review['author']] = $review;
+                    }
+                }
+
+                // Convert associative array back to indexed array
+                $reviews = array_values($uniqueReviews);
+
+                // Fetch comments for the movie
+                $comments = $this->getComments($id);
+
                 require __DIR__ . '/../../views/actorDetails.php';
                 return;
             }
@@ -114,6 +131,23 @@ class MovieController {
             if (!file_exists($viewPath)) {
                 throw new Exception("View file not found: {$viewFile}");
             }
+
+            // Fetch reviews for the movie
+            $reviews = $this->movieModel->getReviews($id);
+
+            // Filter to get reviews from 3 unique users
+            $uniqueReviews = [];
+            foreach ($reviews as $review) {
+                if (!isset($uniqueReviews[$review['author']]) && count($uniqueReviews) < 3) {
+                    $uniqueReviews[$review['author']] = $review;
+                }
+            }
+
+            // Convert associative array back to indexed array
+            $reviews = array_values($uniqueReviews);
+
+            // Fetch comments for the movie
+            $comments = $this->getComments($id);
 
             require $viewPath;
         } catch (Exception $e) {
@@ -395,5 +429,66 @@ class MovieController {
             $error = $e->getMessage();
             require __DIR__ . '/../../views/error.php';
         }
+    }
+
+    public function addComment() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=user&action=showLoginForm');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $movieId = $_POST['movie_id'] ?? null;
+            $comment = $_POST['comment'] ?? null;
+            $parentId = $_POST['parent_id'] ?? null;
+            $username = $_SESSION['user'];
+
+            if ($movieId && $comment) {
+                try {
+                    $stmt = $this->db->prepare(
+                        "INSERT INTO comments (movie_id, user_name, comment, parent_id) 
+                         VALUES (:movie_id, :user_name, :comment, :parent_id)"
+                    );
+                    $stmt->execute([
+                        ':movie_id' => $movieId,
+                        ':user_name' => $username,
+                        ':comment' => $comment,
+                        ':parent_id' => $parentId
+                    ]);
+
+                    header("Location: index.php?controller=movie&action=details&id=$movieId");
+                    exit;
+                } catch (Exception $e) {
+                    error_log($e->getMessage());
+                }
+            }
+        }
+        
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+    public function getComments($movieId) {
+        $stmt = $this->db->prepare(
+            "SELECT c.*, 
+                    (SELECT COUNT(*) FROM comments r WHERE r.parent_id = c.id) as reply_count
+             FROM comments c 
+             WHERE c.movie_id = :movie_id AND c.parent_id IS NULL 
+             ORDER BY c.created_at DESC"
+        );
+        $stmt->execute([':movie_id' => $movieId]);
+        $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($comments as &$comment) {
+            $stmt = $this->db->prepare(
+                "SELECT * FROM comments 
+                 WHERE parent_id = :parent_id 
+                 ORDER BY created_at ASC"
+            );
+            $stmt->execute([':parent_id' => $comment['id']]);
+            $comment['replies'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $comments;
     }
 }
