@@ -33,4 +33,12 @@ class Movie {
         
         return $allContent;
     }
+
+    public function getReviews($movieId) {
+        $url = $this->apiBaseUrl . '/movie/' . $movieId . '/reviews?api_key=' . $this->apiKey;
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        
+        return $data['results'] ?? []; // Return reviews or an empty array if none
+    }
 }
