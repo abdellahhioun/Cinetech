@@ -392,6 +392,58 @@
                 gap: 0.5rem;
             }
         }
+
+        .comments-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .comment-form-section {
+            margin-bottom: 2rem;
+        }
+
+        .comment-form textarea {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .comment-form textarea:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(33, 208, 122, 0.25);
+        }
+
+        .comment-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            color: var(--secondary-color);
+        }
+
+        .comment-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .comment-content {
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -519,6 +571,41 @@
                 </div>
             <?php else: ?>
                 <p>No reviews available for this movie.</p>
+            <?php endif; ?>
+        </div>
+
+        <div class="comments-section">
+            <h2>Comments</h2>
+            
+            <?php if (isset($_SESSION['user'])): ?>
+                <div class="comment-form-section">
+                    <form action="index.php?controller=user&action=addComment" method="POST" class="comment-form">
+                        <input type="hidden" name="movie_id" value="<?= htmlspecialchars($details['id']) ?>">
+                        <div class="form-group">
+                            <textarea name="comment" class="form-control" rows="3" required 
+                                      placeholder="Write your comment here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($comments)): ?>
+                <div class="comments-container">
+                    <?php foreach ($comments as $comment): ?>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <strong class="comment-author"><?= htmlspecialchars($comment['user_name']) ?></strong>
+                                <span class="comment-date"><?= date('M d, Y', strtotime($comment['created_at'])) ?></span>
+                            </div>
+                            <div class="comment-content">
+                                <?= htmlspecialchars($comment['comment']) ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p>No comments yet. Be the first to comment!</p>
             <?php endif; ?>
         </div>
     </div>
