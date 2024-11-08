@@ -179,4 +179,34 @@ class UserController {
         }
         exit;
     }
+
+    public function addComment() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=user&action=showLoginForm');
+            exit;
+        }
+
+        $movieId = $_POST['movie_id'] ?? null;
+        $comment = $_POST['comment'] ?? null;
+        $userName = $_SESSION['user'];
+
+        if ($movieId && $comment) {
+            $stmt = $this->db->prepare("INSERT INTO comments (movie_id, user_name, comment) VALUES (:movie_id, :user_name, :comment)");
+            $stmt->execute([
+                ':movie_id' => $movieId,
+                ':user_name' => $userName,
+                ':comment' => $comment
+            ]);
+
+            // Redirect back to the movie details page
+            header("Location: index.php?controller=movie&action=details&id=$movieId&type=movie");
+            exit;
+        }
+    }
+
+    public function getComments($movieId) {
+        $stmt = $this->db->prepare("SELECT * FROM comments WHERE movie_id = :movie_id ORDER BY created_at DESC");
+        $stmt->execute([':movie_id' => $movieId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

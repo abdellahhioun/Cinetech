@@ -315,6 +315,135 @@
                 font-size: 1rem;
             }
         }
+
+        .reviews-section {
+            margin: 2rem 0;
+            max-width: 100%;
+        }
+
+        .reviews-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .reviews-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .review-item {
+            background-color: var(--background-color-light);
+            border-radius: 4px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-author {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-author strong {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .review-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .review-rating {
+            font-size: 0.9rem;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .review-rating::before {
+            content: '★';
+            color: var(--secondary-color);
+        }
+
+        .read-more {
+            color: var(--secondary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline;
+            margin-left: 0.5rem;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        .comments-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .comment-form-section {
+            margin-bottom: 2rem;
+        }
+
+        .comment-form textarea {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .comment-form textarea:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(33, 208, 122, 0.25);
+        }
+
+        .comment-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            color: var(--secondary-color);
+        }
+
+        .comment-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .comment-content {
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -412,8 +541,90 @@
             </div>
         </div>
         <?php endif; ?>
+
+        <div class="reviews-section">
+            <h2>User Reviews</h2>
+            <?php if (!empty($reviews)): ?>
+                <div class="reviews-container">
+                    <?php foreach ($reviews as $review): ?>
+                        <div class="review-item">
+                            <div class="review-author">
+                                <strong><?= htmlspecialchars($review['author']) ?></strong>
+                            </div>
+                            <div class="review-content">
+                                <?php
+                                $maxLength = 150;
+                                $content = htmlspecialchars($review['content']);
+                                if (strlen($content) > $maxLength) {
+                                    $truncatedContent = substr($content, 0, $maxLength) . '...';
+                                    echo $truncatedContent . ' <a href="#" class="read-more" onclick="toggleReview(this)">Read more</a>';
+                                } else {
+                                    echo $content;
+                                }
+                                ?>
+                            </div>
+                            <div class="review-rating">
+                                <em>Rating: <?= htmlspecialchars($review['rating'] ?? 'N/A') ?></em>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p>No reviews available for this movie.</p>
+            <?php endif; ?>
+        </div>
+
+        <div class="comments-section">
+            <h2>Comments</h2>
+            
+            <?php if (isset($_SESSION['user'])): ?>
+                <div class="comment-form-section">
+                    <form action="index.php?controller=user&action=addComment" method="POST" class="comment-form">
+                        <input type="hidden" name="movie_id" value="<?= htmlspecialchars($details['id']) ?>">
+                        <div class="form-group">
+                            <textarea name="comment" class="form-control" rows="3" required 
+                                      placeholder="Write your comment here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($comments)): ?>
+                <div class="comments-container">
+                    <?php foreach ($comments as $comment): ?>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <strong class="comment-author"><?= htmlspecialchars($comment['user_name']) ?></strong>
+                                <span class="comment-date"><?= date('M d, Y', strtotime($comment['created_at'])) ?></span>
+                            </div>
+                            <div class="comment-content">
+                                <?= htmlspecialchars($comment['comment']) ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p>No comments yet. Be the first to comment!</p>
+            <?php endif; ?>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function toggleReview(link) {
+        const reviewContent = link.parentElement;
+        const fullContent = <?= json_encode(array_map('htmlspecialchars', array_column($reviews, 'content'))) ?>;
+        const index = Array.from(reviewContent.parentElement.parentElement.children).indexOf(reviewContent.parentElement);
+        
+        if (link.textContent === 'Read more') {
+            reviewContent.innerHTML = fullContent[index] + ' <a href="#" class="read-more" onclick="toggleReview(this)">Read less</a>';
+        } else {
+            const maxLength = 150;
+            const truncatedContent = fullContent[index].substring(0, maxLength) + '...';
+            reviewContent.innerHTML = truncatedContent + ' <a href="#" class="read-more" onclick="toggleReview(this)">Read more</a>';
+        }
+    }
+    </script>
 </body>
 </html> 

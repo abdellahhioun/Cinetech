@@ -72,6 +72,15 @@ class MovieController {
                     });
                 }
 
+                // Get comments using UserController
+                $userController = new UserController();
+                $comments = $userController->getComments($id);
+
+                // Fetch reviews from TMDB API
+                $reviewsResponse = file_get_contents("https://api.themoviedb.org/3/{$type}/{$id}/reviews?api_key={$this->apiKey}");
+                $reviewsData = json_decode($reviewsResponse, true);
+                $reviews = $reviewsData['results'] ?? [];
+
                 require __DIR__ . '/../../views/actorDetails.php';
                 return;
             }
@@ -114,6 +123,15 @@ class MovieController {
             if (!file_exists($viewPath)) {
                 throw new Exception("View file not found: {$viewFile}");
             }
+
+            // Get comments using UserController
+            $userController = new UserController();
+            $comments = $userController->getComments($id);
+
+            // Fetch reviews from TMDB API
+            $reviewsResponse = file_get_contents("https://api.themoviedb.org/3/{$type}/{$id}/reviews?api_key={$this->apiKey}");
+            $reviewsData = json_decode($reviewsResponse, true);
+            $reviews = $reviewsData['results'] ?? [];
 
             require $viewPath;
         } catch (Exception $e) {
