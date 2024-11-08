@@ -189,6 +189,7 @@ class UserController {
         $movieId = $_POST['movie_id'] ?? null;
         $comment = $_POST['comment'] ?? null;
         $userName = $_SESSION['user'];
+        $type = $_POST['content_type'] ?? 'movie'; // Default to 'movie' if not specified
 
         if ($movieId && $comment) {
             $stmt = $this->db->prepare("INSERT INTO comments (movie_id, user_name, comment) VALUES (:movie_id, :user_name, :comment)");
@@ -198,8 +199,8 @@ class UserController {
                 ':comment' => $comment
             ]);
 
-            // Redirect back to the movie details page
-            header("Location: index.php?controller=movie&action=details&id=$movieId&type=movie");
+            // Redirect back to the appropriate details page based on content type
+            header("Location: index.php?controller=movie&action=details&id=$movieId&type=$type");
             exit;
         }
     }
